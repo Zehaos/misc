@@ -1,51 +1,31 @@
-import cPickle
 import sys
+import os
+
+import argparse
+import numpy as np
+import joblib
+
 import caffe
 
-def save_filters(network_def, network_model, save_path):
-    #print 'arg1', network_def
-    #print 'arg2', network_model
-    #print 'arg3', save_path
+parser = argparse.ArgumentParser(description='')
+parser.add_argument('--caffe_root', help='Caffe root directory.')
+parser.add_argument('--prototxt_path', help='Model prototxt path.')
+parser.add_argument('--caffemodel_path', help='Caffe model weights file (.caffemodel) path.')
+parser.add_argument('--caffe_weights_path', default='/tmp/VGG_ILSVRC_16_layers_weights.pkl',
+                    help='VGG16 weights dump path.')
+args = parser.parse_args()
 
-    net = caffe.Net(network_def, network_model, caffe.TEST)
-
-    params = []
-    for k,v in net.params.items():
-        print k, type(v), len(v)
-
-        vlist = [vt.data for vt in v]
-        params.append((k, vlist))
-
-    dc = dict(params)
-    with open("./model2.pkl", 'w') as fp:
-        cPickle.dump(dc, fp, -1)
-
-    return
-
-def main(argv):
-
-    #print argv[0]
-    #print argv[0].lower()
-    if len(argv) == 0:
-        print 'To save filters:'
-        print '  Saves filters to mat files.'
-        print '  Usage: python caffe_ftr.py --save-filters network_def network_model save_path'
-        exit()
-
-    cmd_str = argv[0].lower()
-
-    if cmp(cmd_str, '--save-filters')==0:
-        print 'command: save-filters'
-        if len(argv) != 4:
-            print '  Saves filters to mat files.'
-            print '  Usage: python caffe_ftr.py --save-filters network_def network_model save_path'
-            print '    (args are similar.)'
-            exit()
-        save_filters(argv[1], argv[2], argv[3])
-    else:
-        print 'Unknown command: %s' % (cmd_str,)
-    return
+def dump_caffemodel_weights():
+  net = caffe.Net(args.prototxt_path, args.caffemodel_path, caffe.TEST)
+  weights = {}
+  n_layers = len(net.layers)
+  for i in range(n_layers):
+    layer_name = net._layer_names[i]
+    layer = net.layers[i]
+    layer_blobs = [o.data for o in layer.blobs]
+    weights[layer_name] = layer_blobs
+  joblib.dump(weights, args.caffe_weights_path)
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+  dump_caffemodel_weights()
