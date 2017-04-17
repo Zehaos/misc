@@ -129,7 +129,17 @@ class PascalVocReader:
         for object_iter in xmltree.findall('object'):
            rects = []
            bndbox = object_iter.find("bndbox")
-           rects.append([int(it.text) for it in bndbox])
+           temp = [0, 0, 0, 0]
+           for it in bndbox:
+               if it.tag == 'xmin':
+                   temp[0] = int(it.text)
+               elif it.tag == 'ymin':
+                   temp[1] = int(it.text)
+               elif it.tag == 'xmax':
+                   temp[2] = int(it.text)
+               elif it.tag == 'ymax':
+                   temp[3] = int(it.text)
+           rects.append(temp)
            label = object_iter.find('name').text
 
            for rect in rects:
