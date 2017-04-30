@@ -40,9 +40,9 @@ for line in lines:
           w = float(xmax - xmin) / img_w
           h = float(ymax - ymin) / img_h
           f.write('%d %f %f %f %f' % (cls, x, y, w, h))
-      else:
-        f = open(osp.join(tlabelDir, label_name + '.txt'), 'w')
-        f.close()
+    else:
+      f = open(osp.join(tlabelDir, label_name + '.txt'), 'w')
+      f.close()
 
 
 
