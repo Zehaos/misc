@@ -10,7 +10,7 @@ label_dir = '/home/zehao/Dataset/Gesture/val/label'
 tlabelDir = '/home/zehao/Dataset/Gesture/val/label'
 
 class_to_type={0:'fist', 1:'good', 2:'index_finger', 3:'yeah', 4:'ok', 5:'palm'}
-type_to_class = {'fist':0, 'good':1, 'index_finger':2, 'yeah':3, 'ok':4, 'palm':5}
+type_to_class = {'fist':0, 'good':1, 'finger':2, 'yeah':3, 'ok':4, 'palm':5}
 with open(imglist, 'r') as f:
     lines = f.readlines()
 
@@ -25,24 +25,24 @@ for line in lines:
     img = cv2.imread(img_path)
     [img_h, img_w, img_c] = np.shape(img)
 
-    try:
+    if (osp.exists(label_path)):
       voc_reader = pascal_voc_io.PascalVocReader(label_path)
       shapes = voc_reader.getShapes()
 
       for shape in shapes:
-        cls = type_to_class[shape[0]] + 1
+        cls = type_to_class[shape[0]]
         points = shape[1]
         (xmin, ymin) = points[0]
         (xmax, ymax) = points[2]
-        with open(osp.join(tlabelDir, label_name+'.txt'), 'w') as f:
-          x = (xmin+xmax)*0.5/img_w
-          y = (ymin+ymax)*0.5/img_h
-          w = float(xmax-xmin)/img_w
-          h = float(ymax-ymin)/img_h
+        with open(osp.join(tlabelDir, label_name + '.txt'), 'w') as f:
+          x = (xmin + xmax) * 0.5 / img_w
+          y = (ymin + ymax) * 0.5 / img_h
+          w = float(xmax - xmin) / img_w
+          h = float(ymax - ymin) / img_h
           f.write('%d %f %f %f %f' % (cls, x, y, w, h))
-    except:
-      f = open(osp.join(tlabelDir, label_name+'.txt'), 'w')
-      f.close()
+      else:
+        f = open(osp.join(tlabelDir, label_name + '.txt'), 'w')
+        f.close()
 
 
 
